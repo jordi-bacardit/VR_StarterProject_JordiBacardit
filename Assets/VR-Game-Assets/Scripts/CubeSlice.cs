@@ -55,6 +55,10 @@ public class CubeSlice : MonoBehaviour
         if (ScoreManager.Instance != null)
             ScoreManager.Instance.CubeDestroyed();
 
+        var special = GetComponent<SpecialCube>();
+        if (special != null)
+            special.Activate();
+
         Destroy(gameObject);
     }
 

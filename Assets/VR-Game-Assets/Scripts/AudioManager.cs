@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public enum SfxEvent { WrongWeapon, CubeMissed, Grab, GameOver, Button }
+public enum SfxEvent { WrongWeapon, CubeMissed, Grab, GameOver, Button, SlowMotion, FastForward, SwapWeapons, WaveStart }
 
 // Un per escena (a l'objecte AudioManager / [MANAGERS]):
 // - Música de fons en bucle amb fosa d'entrada i de sortida.
@@ -29,6 +29,14 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip grabSound;
     [SerializeField] private AudioClip gameOverSound;
     [SerializeField] private AudioClip buttonSound;
+    [SerializeField] private AudioClip slowMotionSound;
+    [SerializeField] private AudioClip fastForwardSound;
+    [SerializeField] private AudioClip swapWeaponsSound;
+    [SerializeField] private AudioClip waveStartSound;
+
+    [Header("Velocitat del joc")]
+    [Tooltip("Quant canvia el to de la música quan el joc va més lent o més ràpid (0 = gens)")]
+    [SerializeField, Range(0f, 1f)] private float musicPitchFollow = 0.35f;
 
     private AudioSource musicSource;
     private AudioSource[] voices;
@@ -60,6 +68,13 @@ public class AudioManager : MonoBehaviour
             source.dopplerLevel = 0f;
             voices[i] = source;
         }
+    }
+
+    void Update()
+    {
+        // La música s'alenteix o s'accelera una mica amb els cubs especials de velocitat
+        float targetPitch = 1f + (GameSpeed.Multiplier - 1f) * musicPitchFollow;
+        musicSource.pitch = Mathf.MoveTowards(musicSource.pitch, targetPitch, Time.deltaTime);
     }
 
     void OnDestroy()
@@ -153,6 +168,10 @@ public class AudioManager : MonoBehaviour
             SfxEvent.Grab => Instance.grabSound,
             SfxEvent.GameOver => Instance.gameOverSound,
             SfxEvent.Button => Instance.buttonSound,
+            SfxEvent.SlowMotion => Instance.slowMotionSound,
+            SfxEvent.FastForward => Instance.fastForwardSound,
+            SfxEvent.SwapWeapons => Instance.swapWeaponsSound,
+            SfxEvent.WaveStart => Instance.waveStartSound,
             _ => null
         };
 

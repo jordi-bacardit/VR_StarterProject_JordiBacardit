@@ -15,6 +15,7 @@ Shader "Artificial Illusions/Cyber Cube"
 		[HideInInspector]_CubeFaces_Mask("CubeFaces_Mask", 2D) = "white" {}
 		[HideInInspector]_CubeFrame_Mask("CubeFrame_Mask", 2D) = "white" {}
 		_HologramOpacity("Hologram Opacity", Range( 0 , 1)) = 1
+		_FrameColor("Frame Color (A = amount)", Color) = (1,1,1,0)
 		[HideInInspector] _texcoord( "", 2D ) = "white" {}
 		[HideInInspector] __dirty( "", Int ) = 1
 	}
@@ -49,6 +50,7 @@ Shader "Artificial Illusions/Cyber Cube"
 		uniform float _AnimationSpeed;
 		uniform float _Metallic;
 		uniform float _HologramOpacity;
+		uniform float4 _FrameColor;
 
 		void surf( Input i , inout SurfaceOutputStandard o )
 		{
@@ -65,7 +67,10 @@ Shader "Artificial Illusions/Cyber Cube"
 			float2 uv_TexCoord20 = i.uv_texcoord * float2( 0,-1 );
 			float2 panner21 = ( 1.0 * _Time.y * temp_cast_1 + uv_TexCoord20);
 			float4 PannerAnimation41 = tex2D( _AnimationMap, panner21 );
-			float4 Emission13 = ( ( tex2D( _EmissionTexture, uv_EmissionTexture ) * CubeFrame_MASK47 ) + ( ( ( ( tex2D( _HologramTexture, uv_HologramTexture ) * CubeFaces_MASK46 ) * _HologramColor ) * _HologramEmissionPower ) * PannerAnimation41 ) );
+			float4 FrameEmission = tex2D( _EmissionTexture, uv_EmissionTexture );
+			float FrameIntensity = max( FrameEmission.r, max( FrameEmission.g, FrameEmission.b ) );
+			FrameEmission.rgb = lerp( FrameEmission.rgb, FrameIntensity * _FrameColor.rgb, _FrameColor.a );
+			float4 Emission13 = ( ( FrameEmission * CubeFrame_MASK47 ) + ( ( ( ( tex2D( _HologramTexture, uv_HologramTexture ) * CubeFaces_MASK46 ) * _HologramColor ) * _HologramEmissionPower ) * PannerAnimation41 ) );
 			o.Emission = Emission13.rgb;
 			float temp_output_10_0 = _Metallic;
 			o.Metallic = temp_output_10_0;

@@ -46,6 +46,10 @@ public class CubeExplode : MonoBehaviour
         if (ScoreManager.Instance != null)
             ScoreManager.Instance.CubeDestroyed();
 
+        var special = GetComponent<SpecialCube>();
+        if (special != null)
+            special.Activate();
+
         if (mainCube != null)
             mainCube.SetActive(false);
 

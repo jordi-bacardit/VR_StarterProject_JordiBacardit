@@ -31,7 +31,8 @@ public class CubePhysics : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.linearVelocity = transform.forward * Speed;
+        // Els cubs especials de velocitat (wave 3) fan anar tots els cubs més lents o més ràpids
+        rb.linearVelocity = transform.forward * (Speed * GameSpeed.Multiplier);
     }
 
     public void Stop()

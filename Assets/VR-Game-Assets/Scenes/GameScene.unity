@@ -330,6 +330,7 @@ Transform:
   - {fileID: 546668400}
   - {fileID: 75154935}
   - {fileID: 1240951557}
+  - {fileID: 216941651}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &293038737
@@ -3502,6 +3503,11 @@ MonoBehaviour:
   grabSound: {fileID: 8300000, guid: d80edf00be4412f4a8d75b2729d47c14, type: 3}
   gameOverSound: {fileID: 8300000, guid: 5ee8f71cd3c46f84bb4df6cb3a8bce00, type: 3}
   buttonSound: {fileID: 8300000, guid: 03ec7914d841f9f49b356472817453ae, type: 3}
+  slowMotionSound: {fileID: 8300000, guid: dc3d11ca6c0ad0449b1e3d3edac80451, type: 3}
+  fastForwardSound: {fileID: 8300000, guid: 189477d628a135841850ad7ed25dd3b7, type: 3}
+  swapWeaponsSound: {fileID: 8300000, guid: dc5af991acdd6e4468da0a424032eb33, type: 3}
+  waveStartSound: {fileID: 8300000, guid: 4d5b81083972abb4db663f90454ca61a, type: 3}
+  musicPitchFollow: 0.35
 --- !u!1 &1985224040
 GameObject:
   m_ObjectHideFlags: 0
@@ -3547,7 +3553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fcef7802b914da7a97b4d114d4f95dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameDuration: 60
+  gameDuration: 90
   cubeSpawner: {fileID: 1005023593}
   lobbyScene: LobbyScene
   correctPoints: 10
@@ -3573,3 +3579,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f352f71df4774582bd58a6783a470bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &216941650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 216941651}
+  - component: {fileID: 216941652}
+  m_Layer: 5
+  m_Name: UI_Legend
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &216941651
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216941650}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.18442386, z: 0, w: 0.9828468}
+  m_LocalPosition: {x: 5.17, y: 1.9, z: 5.64}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 216941642}
+  m_LocalEulerAnglesHint: {x: 0, y: 21.255, z: 0}
+--- !u!114 &216941652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216941650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03aa0b4f811b47e199ce8735ecfb10a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasScale: 0.006
+  font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  backgroundSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  backgroundColor: {r: 0, g: 0, b: 0, a: 0.7882353}

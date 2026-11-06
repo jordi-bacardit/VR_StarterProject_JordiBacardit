@@ -37,6 +37,18 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TMP_Text highScoreText;
     [SerializeField] private Button backButton;
 
+    [Header("Onades")]
+    [Tooltip("Text que mostra l'onada actual i l'efecte actiu. Si és buit, se'n crea un a sobre del temporitzador")]
+    [SerializeField] private TMP_Text waveText;
+
+    private string waveLabel = "";
+    private SpecialEffect activeEffect = SpecialEffect.None;
+    private float effectEndTime;
+
+    public int CorrectPoints => correctPoints;
+    public int MissPenalty => missPenalty;
+    public int WrongPenalty => wrongPenalty;
+
     public int Score { get; private set; }
     public float TimeLeft { get; private set; }
     public bool IsPlaying { get; private set; }
@@ -54,6 +66,7 @@ public class ScoreManager : MonoBehaviour
         if (highScoreText == null) highScoreText = FindByName<TMP_Text>("Text_HighScore");
         if (backButton == null) backButton = FindByName<Button>("BackButton");
         if (cubeSpawner == null) cubeSpawner = FindFirstObjectByType<CubeSpawner>();
+        if (waveText == null) waveText = CreateWaveText();
     }
 
     void OnDestroy()
@@ -66,6 +79,8 @@ public class ScoreManager : MonoBehaviour
     {
         if (backButton != null)
             backButton.onClick.AddListener(BackToLobby);
+        if (cubeSpawner != null)
+            cubeSpawner.OnWaveStarted += HandleWaveStarted;
 
         StartGame();
     }
@@ -75,6 +90,9 @@ public class ScoreManager : MonoBehaviour
         Score = 0;
         TimeLeft = gameDuration;
         IsPlaying = true;
+        GameSpeed.Reset();
+        activeEffect = SpecialEffect.None;
+        waveLabel = "";
 
         if (finalPanel != null)
             finalPanel.SetActive(false);
@@ -92,9 +110,80 @@ public class ScoreManager : MonoBehaviour
 
         TimeLeft = Mathf.Max(0f, TimeLeft - Time.deltaTime);
         UpdateTimerUI();
+        UpdateWaveUI();
 
         if (TimeLeft <= 0f)
             EndGame();
+    }
+
+    // ---------- Onades i efectes ----------
+
+    private void HandleWaveStarted(int index, CubeSpawner.Wave wave)
+    {
+        waveLabel = wave.name;
+        AudioManager.Play(SfxEvent.WaveStart);
+        UpdateWaveUI();
+    }
+
+    // La crida SpecialEffects quan s'activa (o s'acaba) un efecte de cub especial
+    public void ShowEffect(SpecialEffect effect)
+    {
+        activeEffect = effect;
+        var fx = SpecialEffects.Instance;
+        effectEndTime = Time.time + (effect == SpecialEffect.SwapWeapons ? fx.swapDuration : fx.speedEffectDuration);
+        UpdateWaveUI();
+    }
+
+    private void UpdateWaveUI()
+    {
+        if (waveText == null)
+            return;
+
+        float remaining = effectEndTime - Time.time;
+        if (activeEffect != SpecialEffect.None && remaining > 0f)
+        {
+            string label = activeEffect switch
+            {
+                SpecialEffect.SlowMotion => "MÉS LENT",
+                SpecialEffect.FastForward => "MÉS RÀPID",
+                SpecialEffect.SwapWeapons => "ARMES CANVIADES",
+                _ => ""
+            };
+            waveText.text = $"{label} {Mathf.CeilToInt(remaining)}s";
+            waveText.color = SpecialCube.ColorFor(activeEffect);
+        }
+        else
+        {
+            waveText.text = waveLabel;
+            waveText.color = Color.white;
+        }
+    }
+
+    // Crea un text a sobre del panell del temporitzador (clonant l'estil del text del temps)
+    private TMP_Text CreateWaveText()
+    {
+        if (timeText == null || timeText.canvas == null)
+            return null;
+
+        var canvasRect = timeText.canvas.GetComponent<RectTransform>();
+        var copy = Instantiate(timeText.gameObject, canvasRect);
+        copy.name = "Text_Wave";
+
+        var rect = copy.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(0.5f, 0f);
+        rect.anchoredPosition = new Vector2(0f, 5f);
+        rect.localRotation = Quaternion.identity;
+        rect.localScale = Vector3.one;
+        rect.sizeDelta = new Vector2(0f, timeText.rectTransform.rect.height);
+
+        var text = copy.GetComponent<TMP_Text>();
+        text.fontSize = timeText.fontSize * 0.6f;
+        text.enableAutoSizing = false;
+        text.alignment = TextAlignmentOptions.Center;
+        text.text = "";
+        return text;
     }
 
     // ---------- Accions del joc ----------
@@ -124,6 +213,14 @@ public class ScoreManager : MonoBehaviour
 
         if (cubeSpawner != null)
             cubeSpawner.StopSpawning();
+
+        // Treu els efectes actius (velocitat normal i armes a la seva mà)
+        SpecialEffects.Instance.ResetAll();
+        activeEffect = SpecialEffect.None;
+        if (waveText != null)
+        {
+            waveText.text = "";
+        }
 
         // Treu els cubs que encara volen
         foreach (var cube in FindObjectsByType<CubePhysics>(FindObjectsSortMode.None))
